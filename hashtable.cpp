@@ -10,7 +10,11 @@ public:
   string firstname;
   string lastname;
   string id;
-  Customer();
+  Customer() {
+    firstname = "";
+    lastname = "";
+    id = "";
+  };
   Customer(string fn, string ln, string eyed) {
     firstname = fn;
     lastname = ln;
@@ -175,11 +179,20 @@ public:
   Node<T>* getTail() {
     return tail;
   }
+
+  //modified
   void print() {
     Node<T>* a;
     a = head;
     for (int i = 0; i < itemCount; i++) {
-      cout << a->item << endl;
+      //cout << a->item << endl;
+      Customer x = a->item;
+      string one = x.returnfirstName();
+      string two = x.returnlastName();
+      string three = x.returnID();
+
+      cout << one << " " << two << endl;
+      cout << "ID# " << three << endl;
       a = a->next;
     }
   }
@@ -260,15 +273,14 @@ void dynamicArray<T>::push(T& item) {
     set(item);
 }
 
+// modified
 template<class T>
-void dynamicArray<T>::set(T& item) {
-    if (used == size) {
+void dynamicArray<T>::set(T& item, int index) {
+    while ((index == size) || (index > size)) {
         resize();
     }
-    else {
-    base[used] = item;
+    base[index] = item;
     used++;
-    }
 }
 
 template<class T>
@@ -316,10 +328,39 @@ void dynamicArray<T>::setSize(int c) {
     size = c;
 }
 
+// do i even need this? is it unnecessary? can i just make a hashtable and populate it using generic functions?
+class Hashtable {
+    int tableSize = 100;
+public:
+    Hashtable() {
+        dynamicArray<List<Customer>> xyz(10);
+    }
+    int hashID(string x) {
+        int y, z, index;
+        y = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7];
+        z = x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15]
+        index = (y * z) % tableSize;
+        return index;
+    }
+    void insertEntry(Customer c) {
+        int x;
+        string cID = c.returnID();
+        x = hashID(cID);
+        List<Customer> a;
+        bool t;
+        t = a.add(diana);
+        xyz.push(a);
+    }
+
+};
+
+
+
+
 int main()
 {
     Customer diana = Customer("diana", "perez", "86824983-3587182");
-    Customer greg = Customer("greg", "oxford", "49451687-6884854 ");
+    Customer greg = Customer("greg", "oxford", "49451687-6884854");
     Customer tsung = Customer("tsung", "smith", "34722447-9802850");
 
     string dianaID = diana.returnID();
@@ -327,9 +368,13 @@ int main()
     cout << "diana's id is: " << dianaID << endl;
 
     dynamicArray<List<Customer>> xyz(10);
+    List<Customer> a;
+    bool t;
+    t = a.add(diana);
+    xyz.push(a);
 
-    xyz.push(diana);
+    List<Customer> b;
+    xyz.get(0).print();
 
-    cout << "Hello world!" << endl;
     return 0;
 }
