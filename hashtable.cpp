@@ -217,7 +217,7 @@ public:
     void allocate(int);
     void pop();
     void push(T&);
-    void set(T&);
+    void set(T&, int);
     T get(int);
     T begin();
     T end();
@@ -328,17 +328,17 @@ void dynamicArray<T>::setSize(int c) {
     size = c;
 }
 
-// do i even need this? is it unnecessary? can i just make a hashtable and populate it using generic functions?
 class Hashtable {
     int tableSize = 100;
+    int collisionCounter = 0;
 public:
     Hashtable() {
-        dynamicArray<List<Customer>> xyz(10);
-    }
+        dynamicArray<List<Customer>> xyz(tableSize);
+    };
     int hashID(string x) {
         int y, z, index;
         y = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7];
-        z = x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15]
+        z = x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15];
         index = (y * z) % tableSize;
         return index;
     }
@@ -346,11 +346,26 @@ public:
         int x;
         string cID = c.returnID();
         x = hashID(cID);
-        List<Customer> a;
-        bool t;
-        t = a.add(diana);
-        xyz.push(a);
+        List<Customer> y;
+        y = xyz.get(x);
+        if (y.isEmpty() == true) {
+            bool t;
+            t = y.add(c);
+            xyz.set(y, x);
+        }
+        else {
+            bool t;
+            t = y.add(c);
+            xyz.set(y, x);
+            collisionCounter++;
+        }
     }
+    int listCount() {
+        int x;
+        x = xyz.getUsed();
+        return x;
+    }
+    
 
 };
 
@@ -361,6 +376,7 @@ int main()
 {
     Customer diana = Customer("diana", "perez", "86824983-3587182");
     Customer greg = Customer("greg", "oxford", "49451687-6884854");
+    /*
     Customer tsung = Customer("tsung", "smith", "34722447-9802850");
 
     string dianaID = diana.returnID();
@@ -375,6 +391,13 @@ int main()
 
     List<Customer> b;
     xyz.get(0).print();
+    */
+
+    Hashtable x;
+    x.insertEntry(diana);
+    x.insertEntry(greg);
+
+    cout << "it worked boyeeee" << endl;
 
     return 0;
 }
