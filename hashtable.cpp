@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 
@@ -209,7 +210,7 @@ public:
 template<class T>
 class dynamicArray {
     T* base;
-    int used = 0;
+    int used;
     int size = 10;
 public:
     dynamicArray(int);
@@ -328,76 +329,87 @@ void dynamicArray<T>::setSize(int c) {
     size = c;
 }
 
-class Hashtable {
-    int tableSize = 100;
-    int collisionCounter = 0;
-public:
-    Hashtable() {
-        dynamicArray<List<Customer>> xyz(tableSize);
-    };
-    int hashID(string x) {
-        int y, z, index;
-        y = x[0] + x[1] + x[2] + x[3] + x[4] + x[5] + x[6] + x[7];
-        z = x[9] + x[10] + x[11] + x[12] + x[13] + x[14] + x[15];
-        index = (y * z) % tableSize;
-        return index;
+int hashID(string x) {
+    int y, z, index;
+    y = ((x[0] * x[1]) ^ x[5]) + (x[2] * x[3]) - ((x[4] + x[5] + x[6]) ^ x[7]);
+    z = (x[3] * x[9] * x[10]) - (x[11] ^ (x[12])) + x[13] - (x[14] / x[15]);
+    index = ((y * z) + z - y) % 997;
+    return index;
+}
+
+int insertEntry(Customer c, dynamicArray<List<Customer>> a, int i) {
+    int x;
+    string cID = c.returnID();
+    x = hashID(cID);
+    List<Customer> y;
+    y = a.get(x);
+    if (y.isEmpty() == true) {
+        bool t;
+        t = y.add(c);
+        a.set(y, x);
+        return i;
     }
-    void insertEntry(Customer c) {
-        int x;
-        string cID = c.returnID();
-        x = hashID(cID);
-        List<Customer> y;
-        y = xyz.get(x);
-        if (y.isEmpty() == true) {
-            bool t;
-            t = y.add(c);
-            xyz.set(y, x);
-        }
-        else {
-            bool t;
-            t = y.add(c);
-            xyz.set(y, x);
-            collisionCounter++;
-        }
+    else {
+        bool t;
+        t = y.add(c);
+        a.set(y, x);
+        i++;
+        return i;
     }
-    int listCount() {
-        int x;
-        x = xyz.getUsed();
-        return x;
-    }
-    
-
-};
-
-
-
+}
+int listCount(dynamicArray<List<Customer>> z) {
+    int x;
+    x = z.getUsed();
+    return x;
+}
 
 int main()
 {
-    Customer diana = Customer("diana", "perez", "86824983-3587182");
-    Customer greg = Customer("greg", "oxford", "49451687-6884854");
-    /*
-    Customer tsung = Customer("tsung", "smith", "34722447-9802850");
+    int collisionCounter = 0;
+    dynamicArray<List<Customer>> xyz(1000);
 
-    string dianaID = diana.returnID();
+    string line;
+    ifstream infile;
+    infile.open("Customer.csv");
+    while (!infile.eof()) {
+        int counter;
+        getline(infile, line);
+        string bg[3];
+        stringstream ss( line );
+        while( ss.good() )
+        {
+            for (int i = 0; i < 3; i++) {
+                getline( ss, bg[i], ',' );
+            }
+        }
+        Customer x = Customer(bg[1], bg[0], bg[2]);
+        collisionCounter = insertEntry(x, xyz, collisionCounter);
+    }
+    infile.close();
 
-    cout << "diana's id is: " << dianaID << endl;
-
-    dynamicArray<List<Customer>> xyz(10);
-    List<Customer> a;
-    bool t;
-    t = a.add(diana);
-    xyz.push(a);
-
-    List<Customer> b;
-    xyz.get(0).print();
-    */
-
-    Hashtable x;
-    x.insertEntry(diana);
-    x.insertEntry(greg);
-
-    cout << "it worked boyeeee" << endl;
+    cout << "there were " << collisionCounter << " collisions in this hashtable" << endl;
+    double collisionRate = collisionCounter / 512.0;
+    collisionRate = collisionRate * 100.0;
+    cout << "the collision rate of this hashtable is: " << collisionRate << "%"<< endl;
+    cout << " " << endl;
+    int jyotiIndex = hashID("50518638-4031160");
+    cout << "jyoti should be at index " << jyotiIndex << endl;
+    cout << "now printing index: " << jyotiIndex << endl;
+    List<Customer> y;
+    y = xyz.get(jyotiIndex);
+    y.print();
+    cout << " " << endl;
+    int sylvesterIndex = hashID("90543795-1635151");
+    cout << "sylvester should be at index " << sylvesterIndex << endl;
+    cout << "now printing index: " << sylvesterIndex << endl;
+    y = xyz.get(sylvesterIndex);
+    y.print();
+    cout << " " << endl;
+    int johnIndex = hashID("88538012-2517621");
+    cout << "john should be at index " << johnIndex << endl;
+    cout << "now printing index: " << johnIndex << endl;
+    y = xyz.get(johnIndex);
+    y.print();
 
     return 0;
 }
